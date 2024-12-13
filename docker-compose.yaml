@@ -1,23 +1,30 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:16
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    container_name: postgres-server
     env_file:
       - .dev.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
       - app-network
 
-  email-register:
+  redis:
+    image: redis:alpine
+    container_name: redis-server
+    env_file:
+      - .dev.env
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis_data:/data
+    command: [ "redis-server", "--appendonly", "yes" ]
+
+  server:
     build: .
+    container_name: server
     env_file:
       - .dev.env
     volumes:
@@ -27,9 +34,11 @@ services:
     command: air
     depends_on:
       - postgres
+      - redis
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   app-network:

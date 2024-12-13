@@ -6,4 +6,4 @@ RUN go mod download && go install github.com/air-verse/air@latest
 
 COPY . ./
 
-CMD ["air", "-c", "/app/.air.toml"]
+CMD ["air"]
